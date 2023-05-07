@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project ver="10" name="媒体文件转换器" libEmbed="true" icon="未命名-1.ico" ui="win" output="媒体文件转换器.exe" CompanyName="HeHe Company" FileDescription="通过ffmpeg处理各类视频与音频文件" LegalCopyright="Copyright (C) 喵呵呵" ProductName="媒体文件转换器" InternalName="转换器" FileVersion="1.0.0.25" ProductVersion="1.0.0.25" publishDir="/dist/" dstrip="true" local="false" ignored="false">
+	<file name="main.aardio" path="main.aardio" comment="main.aardio"/>
+	<folder name="资源文件" path="res" embed="true" local="false" ignored="false"/>
+	<folder name="窗体文件" path="dlg" comment="目录" embed="true" local="false" ignored="false"/>
+</project>

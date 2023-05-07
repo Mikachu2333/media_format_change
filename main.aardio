@@ -1,0 +1,88 @@
+import win.ui
+import fsys
+import fsys.dlg
+import process
+/*DSG{{*/
+mainForm = win.form(text="媒体文件转换器";right=495;bottom=179;border="dialog frame";max=false;mode="popup")
+mainForm.add(
+dir_choose={cls="button";text="选择路径";left=382;top=50;right=482;bottom=82;font=LOGFONT(h=-20;name='梦源黑体 CN W9';weight=420);z=11};
+format={cls="edit";text="请手动更改";left=126;top=94;right=234;bottom=126;edge=1;font=LOGFONT(h=-16;name='梦源黑体 CN W9';weight=420);z=10};
+format_static={cls="static";text="转换为";left=16;top=94;right=104;bottom=126;align="center";center=1;font=LOGFONT(h=-20;name='梦源黑体 CN W9';weight=420);transparent=1;z=9};
+output_name={cls="edit";text="可手动更改";left=126;top=136;right=322;bottom=168;edge=1;font=LOGFONT(h=-16;name='梦源黑体 CN W9';weight=420);multiline=1;z=8};
+output_path={cls="edit";text="可手动更改";left=126;top=50;right=358;bottom=82;edge=1;font=LOGFONT(h=-16;name='梦源黑体 CN W9';weight=420);multiline=1;z=4};
+start_change={cls="button";text="开始转换";left=332;top=104;right=486;bottom=160;aw=1;border=1;default=1;font=LOGFONT(h=-20;name='梦源黑体 CN W9';weight=420);z=5};
+video_choose={cls="button";text="选择媒体";left=382;top=8;right=482;bottom=40;font=LOGFONT(h=-20;name='梦源黑体 CN W9';weight=420);z=6};
+video_path={cls="edit";left=126;top=8;right=358;bottom=40;edge=1;font=LOGFONT(h=-16;name='梦源黑体 CN W9';weight=420);multiline=1;z=1};
+输入路径={cls="static";text="输入路径";left=16;top=8;right=102;bottom=40;align="center";center=1;font=LOGFONT(h=-20;name='梦源黑体 CN W9';weight=420);transparent=1;z=2};
+输出文件名={cls="static";text="输出文件名";left=10;top=134;right=114;bottom=166;align="center";center=1;font=LOGFONT(h=-20;name='梦源黑体 CN W9';weight=420);transparent=1;z=7};
+输出文件夹={cls="static";text="输出文件夹";left=8;top=50;right=112;bottom=82;align="center";center=1;font=LOGFONT(h=-20;name='梦源黑体 CN W9';weight=420);transparent=1;z=3}
+)
+/*}}*/
+
+ffmpeg_path = io.joinpath(io._exedir,"ffmpeg.exe")
+
+if (not io.exist(ffmpeg_path,4)){
+	var ffmpeg = $"\res\ffmpeg.exe"
+	string.save(ffmpeg_path,ffmpeg)
+	win.msgboxTimeout("导出ffmpeg成功！","成功",1000)
+	}
+
+win.msgboxTimeout('请手动更改格式\n如mp3，mp4，wav等\n默认的格式为mp3\n输出路径务必加\\',"使用提示",2500,,mainForm.hwnd)
+
+get_path = function(){
+	input_file = fsys.dlg.open('媒体文件|*.avi;*.flv;*.m4v;*.mkv;*.mov;*.mp4;*.mpeg;*.mpeg-2;*.mpg;*.ts;*.wmv;*.avi;*.flv;*.m4v;*.mkv;*.mp4;*.mpeg;*.mpeg-2;*.mpg;*.ts;*.m4a;*.wmv;*.mp3;*.wav;*.aac|','选择视频文件',,mainForm)
+	if(input_file){
+		mainForm.video_path.text = input_file
+	}
+	elseif(input_file = null){
+		win.msgboxTimeout("未获取到路径，请重试！","请重试",2500)
+		get_path()
+	}
+	return input_file
+}
+
+mainForm.video_choose.oncommand = function(id,event){
+	get_path()
+	var temp = io.splitpath(input_file)
+	mainForm.output_path.text = temp.dir
+	mainForm.output_name.text = temp.name
+	
+}
+
+mainForm.start_change.oncommand = function(id,event){
+	mainForm.start_change.disabledText = "转换中"
+	mainForm.video_choose.disabled = true
+	if(mainForm.format.text = "请手动更改"){
+		win.msgboxErr("Error","Error",mainForm.hwnd)
+		mainForm.start_change.disabledText = null
+		mainForm.video_choose.disabled = false
+		mainForm.video_path.text = ""
+	} else {
+		var out_path = io.joinpath(mainForm.output_path.text,mainForm.output_name.text)
+		io.open()
+		if(string.slice(mainForm.format.text,1,1)!="."){
+			info = " -i """ + input_file + """ """ + out_path + "." + mainForm.format.text + """"
+		} else {
+			info = " -i """ + input_file + """ """ + out_path + mainForm.format.text + """"
+		}
+		var prcs = process(ffmpeg_path,info)
+		prcs.wait()
+		mainForm.start_change.disabledText = null
+		mainForm.video_choose.disabled = false
+		mainForm.video_path.text = ""
+		mainForm.output_name.text = ""
+	}
+	io.close()
+}
+
+mainForm.dir_choose.oncommand = function(id,event){
+	mainForm.output_path.text = fsys.dlg.openDir()
+}
+
+mainForm.format.onFocusGot = function(){ 
+	mainForm.format.text = ""
+	
+}
+
+mainForm.show();
+return win.loopMessage();
